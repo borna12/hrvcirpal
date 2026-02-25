@@ -1,0 +1,381 @@
+body {
+    padding: 0;
+    margin: 0;
+}
+html, body, #map {
+    height: 100%;
+    width: 100%;
+}
+
+#sidebar-content, #sidebar-title {
+    word-break: break-word;
+    margin-right: 40px;
+    width: 70%;
+}
+[id^=linkovi] li{cursor: pointer;}
+.swal2-html-container img{width: 60%;}
+#sidebar-content{
+padding-left: 0;}
+.awesome-marker {filter: drop-shadow(3px 5px 2px rgb(0 0 0 / 0.4));}
+
+.leaflet-shadow-pane{display: none!important;}
+#sidebar-content a{cursor: pointer;}
+.leaflet-sidebar{transition: height .3s ease-in-out;}
+.collapsed{transition: height .3s ease-in-out; height: 80px;}
+
+.hidden{display: none;}
+/*.leaflet-sidebar{display:none}*/
+.swal2-html-container img{ margin: auto;}
+
+.pin {
+    width: 25px;
+    height: 25px;
+    border-radius: 50% 50% 50% 0;
+    background: #2778c4;
+    transform: rotate(-45deg);
+    box-shadow: 1px 2px 2px #888888;
+  }
+
+  .tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+  }
+  
+  .tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+    
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 1;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -60px;
+  }
+  
+  .tooltip:hover .tooltiptext {
+    visibility: visible;
+  }
+  .pin:after {
+    width: 14px;
+    height: 14px;
+    margin: 8px 0 0 8px;
+    background: #e6e6e6;
+    position: absolute;
+    border-radius: 50%;
+  }
+
+.pin span{    
+    font-size: 10px;
+    transform: rotate(45deg);
+    color: white;
+    display: inline-block;
+}
+
+.swal2-container{z-index: 100000000000000;}
+.preloader {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  background-image: url('../preloader.gif');
+  background-repeat: no-repeat; 
+  background-color: #FFF;
+  background-position: center;
+}
+.leaflet-bar .tag-filter-tags-container ul li a{color:black}
+.leaflet-bar .tag-filter-tags-container ul {border: 1px solid #0074d9}
+
+.span-kulturna_i_prirodna_baština{    margin-left: 30%;
+  margin-top: 20%;}
+
+.span-muzeji::after{font-family: "FontAwesome";content:"\f19c";position: absolute;
+  left: 12px;
+  top: -8px;
+  font-size: 12px;}
+.span-objekti::after{font-family: "FontAwesome";content:"\f013";position: absolute;
+  left: 12px;
+  top: -8px;
+  font-size: 12px;}
+
+  .span-ustanove::after{font-family: "FontAwesome";content:"\f02d";position: absolute;
+    left: 12px;
+    top: -8px;
+    font-size: 12px;}
+.span-poduzeća::after{font-family: "FontAwesome";content:"\f0f2";position: absolute;
+      left: 12px;
+      top: -8px;
+      font-size: 12px;}
+
+
+li.kulturna_baština{
+  list-style-type: "◇ ";
+}
+
+li.prirodna_baština{
+  list-style-type: "○ ";
+}
+
+
+.fa{line-height:2}
+.leaflet-sidebar-tabs .fa{line-height:2.5}
+.fa-10x{line-height:1.5}
+li.kulturna_i_prirodna_baština {
+  list-style-type: none;
+}
+
+li.kulturna_i_prirodna_baština::before {   
+  content: '';   
+  display: inline-block; 
+  position: absolute;  
+  height: 10px;   
+  width: 10px;    
+  background-size: 10px;   
+  background-image: url('../img/kul-pri2.png'); 
+  background-repeat: no-repeat;   
+  background-position: center center;
+  vertical-align: middle;
+  left: 47px;
+  padding-top: 10px;
+}
+
+.leaflet-right {
+  right: 0px!important;
+}
+.filter-info-box{display:none!important}
+.tag-filter-tags-container a{width: 100px!important;
+  text-align: left!important;line-height: 2.8!important}
+  .tag-filter-tags-container .header a:first-child{text-align: center!important;}
+  
+  .tag-filter-tags-container .ripple:nth-child(1) a::before{font-family: "FontAwesome"; content:"\f19c  ";}
+  .tag-filter-tags-container .ripple:nth-child(2) a::before{    font-family: "FontAwesome"; content:"\f013  ";}
+  .tag-filter-tags-container .ripple:nth-child(3) a::before{    font-family: "FontAwesome"; content:"\f0f2  ";}
+  .tag-filter-tags-container .ripple:nth-child(4) a::before{    font-family: "FontAwesome"; content:"\f02d  ";}
+  .tag-filter-tags-container .header a:first-child::before{display: none;}
+
+
+/*padajući*/
+  .accordion {
+    background-color: #eee;
+    color: #444;
+    cursor: pointer;
+    padding: 18px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 15px;
+    transition: 0.4s;
+  }
+  
+  .active2, .accordion:hover {
+    background-color: #ccc;
+  }
+  
+  .accordion:after {
+    content: '\002B';
+    color: #777;
+    font-weight: bold;
+    float: right;
+    margin-left: 5px;
+  }
+  
+  .active2:after {
+    content: "\2212";
+  }
+  
+  .panel {
+    padding: 0 18px;
+    background-color: white;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+  }
+
+  .marker-img img {
+  width: 30px;
+  height: 30px;
+  display: block;
+}
+
+.marker-img img{
+  width:30px;
+  height:30px;
+  display:block;
+}
+
+.swal-wp-content {
+  text-align: justify;
+}
+
+.swal-wp-content p {
+  margin: 0 0 1em 0;
+}
+
+.swal-wp-content img {
+  max-width: 100%;
+  height: auto;
+  margin: 1em auto;
+  display: block;
+}
+
+.swal-wp-content em {
+  font-style: italic;
+}
+
+.swal-wp-content strong {
+  font-weight: bold;
+}
+
+/* link u jednom redu, bez prelamanja */
+.mymaps-link{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  color:#1a73e8;
+  text-decoration:none;
+  font-size:13px;
+  min-width:0; /* bitno za ellipsis */
+}
+
+.mymaps-point-title{
+  color:#1a73e8;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  min-width:0;
+  flex:1 1 auto;
+}
+
+.mymaps-point-time{
+  color:#666;
+  font-size:12px;
+  white-space:nowrap;
+  flex:0 0 auto;
+}
+
+.mymaps-item{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:4px 0;
+}
+
+/* ikona uz točku */
+.mymaps-mini-pin{
+  width:14px;
+  height:14px;
+  object-fit:contain;
+  flex:0 0 auto;
+}
+
+/* ===== MyMaps-style control (topright) ===== */
+
+.mymaps-control{
+  background:#fff;
+  border-radius:8px;
+  overflow:hidden;
+  width:320px;
+  max-height:60vh;
+  box-shadow:0 2px 12px rgba(0,0,0,.2);
+}
+
+.mymaps-header{
+  padding:10px 12px;
+  border-bottom:1px solid #eee;
+}
+
+.mymaps-title{
+  font-weight:600;
+  font-size:14px;
+}
+
+.mymaps-body{
+  padding:8px 0;
+  overflow:auto;
+  max-height:55vh;
+}
+
+.mymaps-group{
+  border-bottom:1px solid #f0f0f0;
+}
+
+.mymaps-group-header{
+  padding:8px 12px;
+}
+
+/* checkbox + title u jednom redu */
+.mymaps-toggle{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  cursor:pointer;
+  user-select:none;
+}
+
+/* obavezno min-width:0 da ellipsis radi u flexu */
+.mymaps-group-title{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  font-size:13px;
+  min-width:0;
+}
+
+.mymaps-count{
+  color:#666;
+  font-size:12px;
+}
+
+/* reset liste + uvlaka da stane ikona */
+.mymaps-items{
+  margin:0;
+  padding:0 12px 8px 38px;
+  list-style:none;
+}
+
+/* Link je jedna linija, bez wrap-a */
+.mymaps-link{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  white-space:nowrap;     /* sve u jednom redu */
+  min-width:0;            /* da ellipsis radi */
+  width:100%;
+}
+
+/* Title se smije skratiti (ellipsis) */
+.mymaps-point-title{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  min-width:0;
+  flex:1 1 auto;
+}
+
+/* Godina nikad ne prelama */
+.mymaps-point-time{
+  white-space:nowrap;
+  flex:0 0 auto;
+  color:#666;
+  font-size:12px;
+}
+
+.mymaps-item{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.mymaps-mini-pin{
+  width:14px;
+  height:14px;
+  flex:0 0 auto;
+}

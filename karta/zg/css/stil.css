@@ -1,0 +1,201 @@
+body {
+    padding: 0;
+    margin: 0;
+}
+html, body, #map {
+    height: 100%;
+    width: 100%;
+}
+
+#sidebar-content, #sidebar-title {
+    word-break: break-word;
+    margin-right: 40px;
+    width: 70%;
+}
+[id^=linkovi] li{cursor: pointer;}
+.swal2-html-container img{width: 60%;}
+#sidebar-content{
+padding-left: 0;}
+.awesome-marker {filter: drop-shadow(3px 5px 2px rgb(0 0 0 / 0.4));}
+
+.leaflet-shadow-pane{display: none!important;}
+#sidebar-content a{cursor: pointer;}
+.leaflet-sidebar{transition: height .3s ease-in-out;}
+.collapsed{transition: height .3s ease-in-out; height: 80px;}
+
+.hidden{display: none;}
+/*.leaflet-sidebar{display:none}*/
+.swal2-html-container img{ margin: auto;}
+
+.pin {
+    width: 25px;
+    height: 25px;
+    border-radius: 50% 50% 50% 0;
+    background: #2778c4;
+    transform: rotate(-45deg);
+    box-shadow: 1px 2px 2px #888888;
+  }
+
+  .tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+  }
+  
+  .tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+    
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 1;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -60px;
+  }
+  
+  .tooltip:hover .tooltiptext {
+    visibility: visible;
+  }
+  .pin:after {
+    width: 14px;
+    height: 14px;
+    margin: 8px 0 0 8px;
+    background: #e6e6e6;
+    position: absolute;
+    border-radius: 50%;
+  }
+
+.pin span{    
+    font-size: 10px;
+    transform: rotate(45deg);
+    color: white;
+    display: inline-block;
+}
+
+.swal2-container{z-index: 100000000000000;}
+.preloader {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  background-image: url('../preloader.gif');
+  background-repeat: no-repeat; 
+  background-color: #FFF;
+  background-position: center;
+}
+.leaflet-bar .tag-filter-tags-container ul li a{color:black}
+.leaflet-bar .tag-filter-tags-container ul {border: 1px solid #0074d9}
+
+.span-kulturna_i_prirodna_baština{    margin-left: 30%;
+  margin-top: 20%;}
+
+.span-muzeji::after{font-family: "FontAwesome";content:"\f19c";position: absolute;
+  left: 12px;
+  top: -8px;
+  font-size: 12px;}
+.span-objekti::after{font-family: "FontAwesome";content:"\f013";position: absolute;
+  left: 12px;
+  top: -8px;
+  font-size: 12px;}
+
+  .span-ustanove::after{font-family: "FontAwesome";content:"\f02d";position: absolute;
+    left: 12px;
+    top: -8px;
+    font-size: 12px;}
+.span-poduzeća::after{font-family: "FontAwesome";content:"\f0f2";position: absolute;
+      left: 12px;
+      top: -8px;
+      font-size: 12px;}
+
+
+li.kulturna_baština{
+  list-style-type: "◇ ";
+}
+
+li.prirodna_baština{
+  list-style-type: "○ ";
+}
+
+
+.fa{line-height:2}
+.leaflet-sidebar-tabs .fa{line-height:2.5}
+.fa-10x{line-height:1.5}
+li.kulturna_i_prirodna_baština {
+  list-style-type: none;
+}
+
+li.kulturna_i_prirodna_baština::before {   
+  content: '';   
+  display: inline-block; 
+  position: absolute;  
+  height: 10px;   
+  width: 10px;    
+  background-size: 10px;   
+  background-image: url('../img/kul-pri2.png'); 
+  background-repeat: no-repeat;   
+  background-position: center center;
+  vertical-align: middle;
+  left: 47px;
+  padding-top: 10px;
+}
+
+.leaflet-right {
+  right: 0px!important;
+}
+.filter-info-box{display:none!important}
+.tag-filter-tags-container a{width: 100px!important;
+  text-align: left!important;line-height: 2.8!important}
+  .tag-filter-tags-container .header a:first-child{text-align: center!important;}
+  
+  .tag-filter-tags-container .ripple:nth-child(1) a::before{font-family: "FontAwesome"; content:"\f19c  ";}
+  .tag-filter-tags-container .ripple:nth-child(2) a::before{    font-family: "FontAwesome"; content:"\f013  ";}
+  .tag-filter-tags-container .ripple:nth-child(3) a::before{    font-family: "FontAwesome"; content:"\f0f2  ";}
+  .tag-filter-tags-container .ripple:nth-child(4) a::before{    font-family: "FontAwesome"; content:"\f02d  ";}
+  .tag-filter-tags-container .header a:first-child::before{display: none;}
+
+
+/*padajući*/
+  .accordion {
+    background-color: #eee;
+    color: #444;
+    cursor: pointer;
+    padding: 18px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 15px;
+    transition: 0.4s;
+  }
+  
+  .active2, .accordion:hover {
+    background-color: #ccc;
+  }
+  
+  .accordion:after {
+    content: '\002B';
+    color: #777;
+    font-weight: bold;
+    float: right;
+    margin-left: 5px;
+  }
+  
+  .active2:after {
+    content: "\2212";
+  }
+  
+  .panel {
+    padding: 0 18px;
+    background-color: white;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+  }
