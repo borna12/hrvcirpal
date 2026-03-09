@@ -200,15 +200,10 @@ li.kulturna_i_prirodna_baština::before {
     transition: max-height 0.2s ease-out;
   }
 
-  .marker-img img {
-  width: 30px;
-  height: 30px;
-  display: block;
-}
+
 
 .marker-img img{
   width:30px;
-  height:30px;
   display:block;
 }
 

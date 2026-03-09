@@ -6,6 +6,8 @@ let pointsURL = "https://hrvcirpal.stin.hr/wp-json/atlas/v1/rukopisi";
 window.addEventListener("DOMContentLoaded", init);
 
 let map;
+let clusterGroup;
+let visibleCenturies = new Set();
 
 // Data structures
 let groups = {};        // centuryLabel -> { layer: L.LayerGroup, items: [{marker, title, iconUrl}] }
@@ -149,7 +151,7 @@ const MyMapsLayersControl = L.Control.extend({
       const g = this._groups[century];
       if (!g) continue;
 
-      const isOn = this._map.hasLayer(g.layer);
+const isOn = visibleCenturies.has(century);
       const groupEl = document.createElement("div");
       groupEl.className = "mymaps-group";
 
@@ -183,15 +185,16 @@ const MyMapsLayersControl = L.Control.extend({
     }
 
     // Toggle layer
-    body.querySelectorAll('input[type="checkbox"][data-century]').forEach((cb) => {
-      cb.addEventListener("change", (e) => {
-        const c = e.target.getAttribute("data-century");
-        const g = this._groups[c];
-        if (!g) return;
-        if (e.target.checked) g.layer.addTo(this._map);
-        else this._map.removeLayer(g.layer);
-      });
-    });
+ body.querySelectorAll('input[type="checkbox"][data-century]').forEach((cb) => {
+  cb.addEventListener("change", (e) => {
+    const c = e.target.getAttribute("data-century");
+
+    if (e.target.checked) visibleCenturies.add(c);
+    else visibleCenturies.delete(c);
+
+    refreshCluster();
+  });
+});
 
     // Click item -> zoom + open modal
     body.querySelectorAll("a.mymaps-link").forEach((a) => {
@@ -227,7 +230,7 @@ function init() {
   const osm = L.tileLayer(osmUrl, {
     maxZoom: 19,
     attribution:
-      "&copy; <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> &copy; <a href='https://www.lzmk.hr/'>LZMK</a>",
+      "&copy; <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a>",
   });
 
   map = L.map("releated-usage-map", {
@@ -237,6 +240,7 @@ function init() {
     .setView([45.1470039817354, 15.693330115076954], 8)
     .addLayer(osm);
 
+  // granice karte
   const southWest = L.latLng(42.17, 13.1459);
   const northEast = L.latLng(46.64, 19.8);
   const bounds = L.latLngBounds(southWest, northEast);
@@ -246,13 +250,19 @@ function init() {
     map.panInsideBounds(bounds, { animate: false });
   });
 
-  // reset
+  // reset podataka
   groups = {};
   groupOrder = [];
+  visibleCenturies = new Set();
 
-  // Add control (top right)
+  // jedan zajednički cluster za sve markere
+  clusterGroup = L.markerClusterGroup();
+  map.addLayer(clusterGroup);
+
+  // custom panel gore desno
   const ctrl = new MyMapsLayersControl().addTo(map);
 
+  // dohvati JSON i izgradi markere + panel
   fetch(pointsURL)
     .then((r) => {
       if (!r.ok) throw new Error("HTTP " + r.status);
@@ -260,7 +270,9 @@ function init() {
     })
     .then((rows) => {
       if (!Array.isArray(rows)) throw new Error("JSON nije array");
+
       buildGroups(rows);
+      refreshCluster();
       ctrl.setData(groups, groupOrder, map);
       hidePreloader();
     })
@@ -286,13 +298,12 @@ function buildGroups(rows) {
     const century = centuryLabel(item.vrijeme_nastanka);
     const timeTag = slugify(item.vrijeme_nastanka || "nepoznato");
 
-    if (!groups[century]) {
-      groups[century] = {
-        layer: (L.markerClusterGroup ? L.markerClusterGroup() : L.layerGroup()),
-        items: [],
-      };
-      groups[century].layer.addTo(map); // default ON
-    }
+  if (!groups[century]) {
+  groups[century] = {
+    items: [],
+  };
+  visibleCenturies.add(century); // default uključeno
+}
 
     const marker = L.marker([lat, lon], { id: item.id || title, tags: [timeTag] });
 
@@ -304,8 +315,9 @@ function buildGroups(rows) {
       openInfoModal(title, opis);
     });
 
-    groups[century].layer.addLayer(marker);
-    groups[century].items.push({
+ clusterGroup.addLayer(marker);
+
+groups[century].items.push({
   marker,
   title,
   opis,
@@ -315,4 +327,16 @@ function buildGroups(rows) {
   }
 
   groupOrder = Object.keys(groups).sort(centurySort);
+}
+
+function refreshCluster() {
+  clusterGroup.clearLayers();
+
+  for (const century of Object.keys(groups)) {
+    if (!visibleCenturies.has(century)) continue;
+
+    for (const item of groups[century].items) {
+      clusterGroup.addLayer(item.marker);
+    }
+  }
 }
