@@ -2,7 +2,7 @@ body {
     padding: 0;
     margin: 0;
 }
-html, body, #map {
+html, body, #releated-usage-map {
     height: 100%;
     width: 100%;
 }
@@ -201,9 +201,9 @@ li.kulturna_i_prirodna_baština::before {
   }
 
 
-
 .marker-img img{
   width:30px;
+  height:auto;
   display:block;
 }
 
@@ -230,49 +230,7 @@ li.kulturna_i_prirodna_baština::before {
   font-weight: bold;
 }
 
-/* link u jednom redu, bez prelamanja */
-.mymaps-link{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  color:#1a73e8;
-  text-decoration:none;
-  font-size:13px;
-  min-width:0; /* bitno za ellipsis */
-}
-
-.mymaps-point-title{
-  color:#1a73e8;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  min-width:0;
-  flex:1 1 auto;
-}
-
-.mymaps-point-time{
-  color:#666;
-  font-size:12px;
-  white-space:nowrap;
-  flex:0 0 auto;
-}
-
-.mymaps-item{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  padding:4px 0;
-}
-
-/* ikona uz točku */
-.mymaps-mini-pin{
-  width:14px;
-  height:14px;
-  object-fit:contain;
-  flex:0 0 auto;
-}
-
-/* ===== MyMaps-style control (topright) ===== */
+/* ===== MyMaps-style control ===== */
 
 .mymaps-control{
   background:#fff;
@@ -299,6 +257,35 @@ li.kulturna_i_prirodna_baština::before {
   max-height:55vh;
 }
 
+.mymaps-separator{
+  height:1px;
+  background:#eee;
+  margin:0 0 8px 0;
+}
+
+.mymaps-subtitle{
+  font-size:12px;
+  font-weight:600;
+  color:#666;
+  padding:0 12px 8px;
+  text-transform:uppercase;
+  letter-spacing:.02em;
+}
+
+.mymaps-icon-filter{
+  padding:0 12px 12px;
+}
+
+.mymaps-select{
+  width:100%;
+  padding:8px 10px;
+  font-size:13px;
+  border:1px solid #d9d9d9;
+  border-radius:6px;
+  background:#fff;
+  box-sizing:border-box;
+}
+
 .mymaps-group{
   border-bottom:1px solid #f0f0f0;
 }
@@ -307,7 +294,6 @@ li.kulturna_i_prirodna_baština::before {
   padding:8px 12px;
 }
 
-/* checkbox + title u jednom redu */
 .mymaps-toggle{
   display:flex;
   gap:8px;
@@ -316,7 +302,6 @@ li.kulturna_i_prirodna_baština::before {
   user-select:none;
 }
 
-/* obavezno min-width:0 da ellipsis radi u flexu */
 .mymaps-group-title{
   display:flex;
   gap:8px;
@@ -330,47 +315,92 @@ li.kulturna_i_prirodna_baština::before {
   font-size:12px;
 }
 
-/* reset liste + uvlaka da stane ikona */
 .mymaps-items{
   margin:0;
   padding:0 12px 8px 38px;
   list-style:none;
 }
 
-/* Link je jedna linija, bez wrap-a */
-.mymaps-link{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  white-space:nowrap;     /* sve u jednom redu */
-  min-width:0;            /* da ellipsis radi */
-  width:100%;
-}
-
-/* Title se smije skratiti (ellipsis) */
-.mymaps-point-title{
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-  min-width:0;
-  flex:1 1 auto;
-}
-
-/* Godina nikad ne prelama */
-.mymaps-point-time{
-  white-space:nowrap;
-  flex:0 0 auto;
-  color:#666;
-  font-size:12px;
-}
-
 .mymaps-item{
   display:flex;
-  align-items:center;
-  gap:6px;
+  align-items:flex-start;
+  gap:8px;
+  padding:6px 0;
 }
+
 .mymaps-mini-pin{
   width:14px;
   height:14px;
+  object-fit:contain;
   flex:0 0 auto;
+  margin-top:3px;
+}
+
+
+.mymaps-link{
+  display:block;
+  flex:1 1 auto;
+  min-width:0;
+  color:#1a73e8;
+  text-decoration:none;
+  font-size:13px;
+  line-height:1.4;
+  word-break:normal;
+  overflow-wrap:break-word;
+}
+
+.mymaps-point-label{
+  display:inline;
+  color:#1a73e8;
+}
+
+.mymaps-point-time{
+  color:#666;
+  font-size:12px;
+  margin-left:4px;
+  white-space:nowrap;
+}
+
+
+
+.mymaps-point-title,
+.mymaps-point-time {
+  display: inline;
+}
+
+
+.mymaps-control a.mymaps-link,
+.mymaps-control a.mymaps-link:hover {
+  display: block;
+  width: auto;
+  height: auto;
+  line-height: 1.4;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  color: #1a73e8;
+  text-decoration: none;
+  padding: 0;
+}
+
+.mymaps-link {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: anywhere;
+}
+
+.mymaps-point-label {
+  display: inline;
+  color: #1a73e8;
+}
+
+.mymaps-point-time {
+  color: #666;
+  font-size: 12px;
+  margin-left: 4px;
+  white-space: nowrap;
 }

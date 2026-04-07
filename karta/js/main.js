@@ -8,10 +8,48 @@ window.addEventListener("DOMContentLoaded", init);
 let map;
 let clusterGroup;
 let visibleCenturies = new Set();
+let selectedIconKey = "a";
 
 // Data structures
-let groups = {};        // centuryLabel -> { layer: L.LayerGroup, items: [{marker, title, iconUrl}] }
+let groups = {};        // centuryLabel -> { items: [{marker, title, opis, timeRaw, ikone}] }
 let groupOrder = [];    // sorted list of centuries for rendering
+
+const iconOptions = [
+  { key: "a", label: "A" },
+  { key: "b", label: "B" },
+  { key: "v", label: "V" },
+  { key: "g", label: "G" },
+  { key: "d", label: "D" },
+  { key: "e", label: "E" },
+  { key: "zh", label: "Ž" },
+  { key: "z", label: "Z" },
+  { key: "i", label: "I" },
+  { key: "ji", label: "Ï" },
+  { key: "jj", label: "Ĵ" },
+  { key: "k", label: "K" },
+  { key: "l", label: "L" },
+  { key: "m", label: "M" },
+  { key: "n", label: "N" },
+  { key: "o", label: "O" },
+  { key: "p", label: "P" },
+  { key: "r", label: "R" },
+  { key: "s", label: "S" },
+  { key: "t", label: "T" },
+  { key: "u", label: "U" },
+  { key: "f", label: "F" },
+  { key: "h", label: "H" },
+  { key: "oh", label: "Ô" },
+  { key: "ch1", label: "Ĉ" },
+  { key: "c", label: "C" },
+  { key: "ch", label: "Č" },
+  { key: "sh", label: "Š" },
+  { key: "softsign", label: "ь" },
+  { key: "y", label: "Y" },
+  { key: "eh", label: "Ȇ" },
+  { key: "uh", label: "Ȗ" },
+  { key: "ja", label: "JA" },
+  { key: "je", label: "JE" }
+];
 
 // -------------------------------
 // Helpers
@@ -26,11 +64,34 @@ function slugify(s) {
     .replace(/\_+/g, "_");
 }
 
+function escapeHtml(str) {
+  return (str || "")
+    .toString()
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function listLabel(title, timeRaw) {
+  const t = (title || "").toString().trim();
+  const y = (timeRaw || "").toString().trim();
+
+  if (!y) return escapeHtml(t);
+
+  // ako je godina/oznaka već u naslovu, nemoj je dodavati opet
+  if (t.toLowerCase().includes(y.toLowerCase())) {
+    return escapeHtml(t);
+  }
+
+  return `${escapeHtml(t)} <span class="mymaps-point-time">(${escapeHtml(y)})</span>`;
+}
+
 function centuryLabel(vrijeme) {
   const raw = (vrijeme || "").toString().trim();
   const s = raw.toLowerCase();
 
-  // 1) Ako ima godinu (1000-2099 npr. 1404) -> st = ceil(year/100)
   const yearMatch = s.match(/\b(1[0-9]{3}|20[0-9]{2})\b/);
   if (yearMatch) {
     const y = Number(yearMatch[1]);
@@ -38,11 +99,9 @@ function centuryLabel(vrijeme) {
     return `${c}. st.`;
   }
 
-  // 2) Ako je već upisano stoljeće kao broj 1-2 znamenke (npr. "15. st.")
   const cenMatch = s.match(/\b(\d{1,2})\b/);
   if (cenMatch) return `${Number(cenMatch[1])}. st.`;
 
-  // 3) Fallback
   return raw.length ? raw : "nepoznato";
 }
 
@@ -121,12 +180,27 @@ const MyMapsLayersControl = L.Control.extend({
     const container = L.DomUtil.create("div", "mymaps-control leaflet-bar");
     container.innerHTML = `
       <div class="mymaps-header">
-        <div class="mymaps-title">Slojevi (stoljeća)</div>
+        <div class="mymaps-title">Filteri</div>
       </div>
-      <div class="mymaps-body" id="mymaps-body"></div>
+      <div class="mymaps-body" id="mymaps-body">
+        <div class="mymaps-icon-filter">
+          <div class="mymaps-subtitle">Slovo</div>
+          <select id="icon-filter-select" class="mymaps-select">
+            ${iconOptions.map(opt => `
+              <option value="${opt.key}" ${opt.key === selectedIconKey ? "selected" : ""}>
+                ${opt.label}
+              </option>
+            `).join("")}
+          </select>
+        </div>
+
+        <div class="mymaps-separator"></div>
+
+        <div class="mymaps-subtitle">Stoljeća</div>
+        <div id="mymaps-centuries"></div>
+      </div>
     `;
 
-    // Stop clicks from reaching the map
     L.DomEvent.disableClickPropagation(container);
     L.DomEvent.disableScrollPropagation(container);
 
@@ -143,75 +217,87 @@ const MyMapsLayersControl = L.Control.extend({
 
   render: function () {
     const body = this._container.querySelector("#mymaps-body");
-    if (!body) return;
+    const centuriesWrap = this._container.querySelector("#mymaps-centuries");
+    if (!body || !centuriesWrap) return;
 
-    body.innerHTML = "";
+    centuriesWrap.innerHTML = "";
 
     for (const century of this._order) {
       const g = this._groups[century];
       if (!g) continue;
 
-const isOn = visibleCenturies.has(century);
+      const visibleItems = g.items.filter(it => it.ikone && it.ikone[selectedIconKey]);
+      const isOn = visibleCenturies.has(century);
+
       const groupEl = document.createElement("div");
       groupEl.className = "mymaps-group";
 
-      // pick a representative icon for group (first item with icon)
       groupEl.innerHTML = `
-  <div class="mymaps-group-header">
-    <label class="mymaps-toggle">
-      <input type="checkbox" ${isOn ? "checked" : ""} data-century="${century}">
-      <span class="mymaps-group-title">
-        ${century}
-        <span class="mymaps-count">(${g.items.length})</span>
-      </span>
-    </label>
-  </div>
-  <ul class="mymaps-items" data-century-list="${century}">
-    ${g.items
-      .slice()
-      .sort((a,b)=> (a.title||"").localeCompare(b.title||"", "hr"))
-      .map((it, idx) => `
-        <li class="mymaps-item">
-          ${it.iconUrl ? `<img class="mymaps-mini-pin" src="${it.iconUrl}" alt="">` : ""}
-        <a href="#" data-century="${century}" data-idx="${idx}" class="mymaps-link">
-  <span class="mymaps-point-title">${it.title}</span>
-  <span class="mymaps-point-time">(${it.timeRaw || "nepoznato"})</span>
+        <div class="mymaps-group-header">
+          <label class="mymaps-toggle">
+            <input type="checkbox" ${isOn ? "checked" : ""} data-century="${century}">
+            <span class="mymaps-group-title">
+              ${century}
+              <span class="mymaps-count">(${visibleItems.length})</span>
+            </span>
+          </label>
+        </div>
+        <ul class="mymaps-items" data-century-list="${century}">
+          ${visibleItems
+            .slice()
+            .sort((a, b) => (a.title || "").localeCompare(b.title || "", "hr"))
+            .map((it) => `
+              <li class="mymaps-item">
+                <img class="mymaps-mini-pin" src="${it.ikone[selectedIconKey]}" alt="">
+                <a href="#" data-century="${century}" data-title="${encodeURIComponent(it.title)}" class="mymaps-link">
+  <span class="mymaps-point-label">${listLabel(it.title, it.timeRaw)}</span>
 </a>
-        </li>
-      `).join("")}
-  </ul>
-`;
-      body.appendChild(groupEl);
+              </li>
+            `).join("")}
+        </ul>
+      `;
+
+      centuriesWrap.appendChild(groupEl);
     }
 
-    // Toggle layer
- body.querySelectorAll('input[type="checkbox"][data-century]').forEach((cb) => {
-  cb.addEventListener("change", (e) => {
-    const c = e.target.getAttribute("data-century");
+    body.querySelectorAll('input[type="checkbox"][data-century]').forEach((cb) => {
+      cb.addEventListener("change", (e) => {
+        const c = e.target.getAttribute("data-century");
 
-    if (e.target.checked) visibleCenturies.add(c);
-    else visibleCenturies.delete(c);
+        if (e.target.checked) visibleCenturies.add(c);
+        else visibleCenturies.delete(c);
 
-    refreshCluster();
-  });
-});
+        refreshCluster();
+        this.render();
+      });
+    });
 
-    // Click item -> zoom + open modal
     body.querySelectorAll("a.mymaps-link").forEach((a) => {
       a.addEventListener("click", (e) => {
         e.preventDefault();
         const c = a.getAttribute("data-century");
-        const idx = Number(a.getAttribute("data-idx"));
+        const title = decodeURIComponent(a.getAttribute("data-title") || "");
         const g = this._groups[c];
-        if (!g || !g.items[idx]) return;
+        if (!g) return;
 
-        const it = g.items[idx];
+        const it = g.items.find(x => x.title === title);
+        if (!it) return;
+
         const latlng = it.marker.getLatLng();
         this._map.setView(latlng, 15);
-
         openInfoModal(it.title, it.opis);
       });
     });
+
+    const select = this._container.querySelector("#icon-filter-select");
+    if (select) {
+      select.value = selectedIconKey;
+      select.onchange = (e) => {
+        selectedIconKey = e.target.value;
+        refreshCluster();
+        this.render();
+      };
+    }
   },
 });
 
@@ -240,7 +326,6 @@ function init() {
     .setView([45.1470039817354, 15.693330115076954], 8)
     .addLayer(osm);
 
-  // granice karte
   const southWest = L.latLng(42.17, 13.1459);
   const northEast = L.latLng(46.64, 19.8);
   const bounds = L.latLngBounds(southWest, northEast);
@@ -250,19 +335,15 @@ function init() {
     map.panInsideBounds(bounds, { animate: false });
   });
 
-  // reset podataka
   groups = {};
   groupOrder = [];
   visibleCenturies = new Set();
 
-  // jedan zajednički cluster za sve markere
   clusterGroup = L.markerClusterGroup();
   map.addLayer(clusterGroup);
 
-  // custom panel gore desno
   const ctrl = new MyMapsLayersControl().addTo(map);
 
-  // dohvati JSON i izgradi markere + panel
   fetch(pointsURL)
     .then((r) => {
       if (!r.ok) throw new Error("HTTP " + r.status);
@@ -294,20 +375,21 @@ function buildGroups(rows) {
 
     const title = item.ime_dokumenta || "(bez imena)";
     const opis = item.opis || "";
-    const iconUrl = item.ikona_url || "";
     const century = centuryLabel(item.vrijeme_nastanka);
     const timeTag = slugify(item.vrijeme_nastanka || "nepoznato");
+    const ikone = item.ikone || {};
 
-  if (!groups[century]) {
-  groups[century] = {
-    items: [],
-  };
-  visibleCenturies.add(century); // default uključeno
-}
+    if (!groups[century]) {
+      groups[century] = {
+        items: [],
+      };
+      visibleCenturies.add(century);
+    }
 
     const marker = L.marker([lat, lon], { id: item.id || title, tags: [timeTag] });
 
-    const divIcon = makeDivIcon(iconUrl, title, timeTag);
+    const selectedIconUrl = ikone[selectedIconKey] || "";
+    const divIcon = makeDivIcon(selectedIconUrl, title, timeTag);
     if (divIcon) marker.setIcon(divIcon);
 
     marker.on("click", (e) => {
@@ -315,15 +397,13 @@ function buildGroups(rows) {
       openInfoModal(title, opis);
     });
 
- clusterGroup.addLayer(marker);
-
-groups[century].items.push({
-  marker,
-  title,
-  opis,
-  iconUrl,
-  timeRaw: item.vrijeme_nastanka || "",
-});
+    groups[century].items.push({
+      marker,
+      title,
+      opis,
+      timeRaw: item.vrijeme_nastanka || "",
+      ikone,
+    });
   }
 
   groupOrder = Object.keys(groups).sort(centurySort);
@@ -336,7 +416,18 @@ function refreshCluster() {
     if (!visibleCenturies.has(century)) continue;
 
     for (const item of groups[century].items) {
-      clusterGroup.addLayer(item.marker);
+      const iconUrl = item.ikone && item.ikone[selectedIconKey] ? item.ikone[selectedIconKey] : "";
+      if (!iconUrl) continue;
+
+      const marker = item.marker;
+      const timeTag = slugify(item.timeRaw || "nepoznato");
+      const divIcon = makeDivIcon(iconUrl, item.title, timeTag);
+
+      if (divIcon) {
+        marker.setIcon(divIcon);
+      }
+
+      clusterGroup.addLayer(marker);
     }
   }
 }
