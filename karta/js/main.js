@@ -10,6 +10,9 @@ let clusterGroup;
 let visibleCenturies = new Set();
 let selectedIconKey = "a";
 
+// Lista placeholder filenameova koji se tretiraju kao "nema slike"
+const PLACEHOLDER_FILENAMES = ["nema.jpg", "nista.jpg"];
+
 // Data structures
 let groups = {};        // centuryLabel -> { items: [{marker, title, opis, timeRaw, ikone}] }
 let groupOrder = [];    // sorted list of centuries for rendering
@@ -74,13 +77,37 @@ function escapeHtml(str) {
     .replace(/'/g, "&#039;");
 }
 
+// === NOVO: provjera je li URL placeholder (nema.jpg) ===
+function isPlaceholderIcon(url) {
+  if (!url) return true;
+  const filename = url
+    .toString()
+    .split("?")[0]
+    .split("#")[0]
+    .split("/")
+    .pop()
+    .toLowerCase();
+  // pokrivamo i scaled/resized verzije tipa "nema-150x150.jpg"
+  return PLACEHOLDER_FILENAMES.some((ph) => {
+    const base = ph.replace(/\.[^.]+$/, ""); // "nema"
+    return filename === ph || filename.startsWith(base + "-") || filename.startsWith(base + ".");
+  });
+}
+
+// === NOVO: ima li item stvarnu (ne-placeholder) ikonu za zadani ključ ===
+function hasRealIcon(ikone, key) {
+  if (!ikone) return false;
+  const url = ikone[key];
+  if (!url) return false;
+  return !isPlaceholderIcon(url);
+}
+
 function listLabel(title, timeRaw) {
   const t = (title || "").toString().trim();
   const y = (timeRaw || "").toString().trim();
 
   if (!y) return escapeHtml(t);
 
-  // ako je godina/oznaka već u naslovu, nemoj je dodavati opet
   if (t.toLowerCase().includes(y.toLowerCase())) {
     return escapeHtml(t);
   }
@@ -105,7 +132,6 @@ function centuryLabel(vrijeme) {
   return raw.length ? raw : "nepoznato";
 }
 
-// Sort centuries naturally (1..30, then "nepoznato")
 function centurySort(a, b) {
   const ax = a.match(/^(\d{1,2})\.\s*st\./);
   const bx = b.match(/^(\d{1,2})\.\s*st\./);
@@ -128,7 +154,6 @@ function hidePreloader() {
   })();
 }
 
-// SweetAlert opener (WordPress HTML)
 function openInfoModal(title, opis) {
   if (window.Swal && Swal.fire) {
     if (map && map._handlers) map._handlers.forEach((h) => h.disable());
@@ -148,7 +173,6 @@ function openInfoModal(title, opis) {
   }
 }
 
-// Build marker icon (PNG/SVG URL)
 function makeDivIcon(iconUrl, title, extraClass) {
   if (!iconUrl) return null;
   return L.divIcon({
@@ -226,7 +250,8 @@ const MyMapsLayersControl = L.Control.extend({
       const g = this._groups[century];
       if (!g) continue;
 
-      const visibleItems = g.items.filter(it => it.ikone && it.ikone[selectedIconKey]);
+      // === IZMJENA: koristi hasRealIcon umjesto direktne provjere ===
+      const visibleItems = g.items.filter(it => hasRealIcon(it.ikone, selectedIconKey));
       const isOn = visibleCenturies.has(century);
 
       const groupEl = document.createElement("div");
@@ -416,9 +441,10 @@ function refreshCluster() {
     if (!visibleCenturies.has(century)) continue;
 
     for (const item of groups[century].items) {
-      const iconUrl = item.ikone && item.ikone[selectedIconKey] ? item.ikone[selectedIconKey] : "";
-      if (!iconUrl) continue;
+      // === IZMJENA: koristi hasRealIcon umjesto direktne provjere ===
+      if (!hasRealIcon(item.ikone, selectedIconKey)) continue;
 
+      const iconUrl = item.ikone[selectedIconKey];
       const marker = item.marker;
       const timeTag = slugify(item.timeRaw || "nepoznato");
       const divIcon = makeDivIcon(iconUrl, item.title, timeTag);
